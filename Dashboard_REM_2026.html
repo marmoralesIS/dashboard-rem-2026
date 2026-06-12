@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard REM 2026 · Innovasport</title>
+<style>
+  :root {
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --surface2: #F8F9FA;
+    --border: #E1E4E8;
+    --border2: #D0D5DC;
+    --text: #1A1F2E;
+    --text2: #6B7280;
+    --text3: #9CA3AF;
+    --accent: #0A2463;
+    --accent-light: #E8EDF7;
+    --green: #16A34A; --green-bg: #F0FDF4; --green-border: #BBF7D0;
+    --yellow: #D97706; --yellow-bg: #FFFBF0; --yellow-border: #FCD69A;
+    --red: #DC2626; --red-bg: #FEF2F2; --red-border: #FECACA;
+    --font: 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .header { background: var(--accent); border-bottom: none; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .header-left h1 { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+  .header-left p { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+  .header-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.15); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .file-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 7px; cursor: pointer; font-size: 11px; font-family: var(--font); display: flex; align-items: center; gap: 6px; transition: background .15s; font-weight: 500; }
+  .file-btn:hover { background: rgba(255,255,255,0.2); }
+  .file-btn svg { width: 13px; height: 13px; }
+  .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-ok { background: rgba(22,163,74,0.25); color: #86efac; border: 1px solid rgba(134,239,172,0.3); }
+  .status-wait { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); }
+
+  /* ── LAYOUT ── */
+  .main { padding: 24px 32px; max-width: 1440px; }
+
+  /* ── CONTROLES ── */
+  .controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+  .control-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; white-space: nowrap; }
+  .mes-btns { display: flex; gap: 3px; flex-wrap: wrap; }
+  .mes-btn { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-size: 11px; font-family: var(--font); transition: all .15s; }
+  .mes-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+  .mes-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .mes-btn.has-data { border-color: #BBF7D0; color: var(--green); }
+  .mes-btn.active.has-data { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+  .view-toggle { margin-left: auto; display: flex; gap: 3px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 3px; }
+  .toggle-btn { padding: 4px 12px; border-radius: 5px; border: none; background: transparent; color: var(--text2); cursor: pointer; font-size: 11px; font-family: var(--font); transition: all .15s; font-weight: 500; }
+  .toggle-btn.active { background: var(--surface); color: var(--accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* ── KPI CARDS ── */
+  .battles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .battle-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: box-shadow .15s, transform .15s; }
+  .battle-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .bc-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .bc-dot { width: 6px; height: 20px; border-radius: 3px; flex-shrink: 0; }
+  .bc-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text2); }
+  .bc-big { font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+  .bc-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .bc-mini { display: flex; gap: 3px; margin-top: 10px; flex-wrap: wrap; }
+  .bc-semaforo { width: 9px; height: 9px; border-radius: 2px; }
+  .bc-stats { display: flex; gap: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .bc-stat { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 3px; }
+
+  /* ── DETAIL TABLE ── */
+  .detail-section { margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+  .detail-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; transition: background .15s; }
+  .detail-header:hover { filter: brightness(0.96); }
+  .dh-arrow { font-size: 10px; transition: transform .2s; color: rgba(255,255,255,0.6); }
+  .dh-arrow.open { transform: rotate(90deg); }
+  .dh-title { font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .5px; }
+  .dh-pills { margin-left: auto; display: flex; gap: 5px; }
+  .dh-pill { padding: 2px 9px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+
+  .detail-body { display: none; }
+  .detail-body.open { display: block; overflow-x: auto; }
+
+  table.kpi-table { width: 100%; border-collapse: collapse; }
+  table.kpi-table thead tr { background: var(--surface2); }
+  table.kpi-table th { padding: 8px 12px; text-align: center; font-size: 10px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.kpi-table th:first-child, table.kpi-table th:nth-child(2), table.kpi-table th:nth-child(3) { text-align: left; }
+  table.kpi-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-size: 12px; white-space: nowrap; color: var(--text); }
+  table.kpi-table td:first-child { font-weight: 500; min-width: 200px; }
+  table.kpi-table tr:last-child td { border-bottom: none; }
+  table.kpi-table tr:hover td { background: var(--accent-light); }
+  table.kpi-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.kpi-table td.ctr { text-align: center; }
+
+  /* celdas de cobertura */
+  .cov { display: inline-flex; align-items: center; justify-content: center; min-width: 54px; padding: 3px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+  .cov.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .cov.yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .cov.red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .cov.empty { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); font-weight: 400; }
+
+  .tend-up { color: var(--green); font-size: 11px; font-weight: 600; }
+  .tend-dn { color: var(--red); font-size: 11px; font-weight: 600; }
+
+  /* mini sparkline dots */
+  .spark { display: flex; gap: 3px; align-items: center; }
+  .spark-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .spark-dot.g { background: #86efac; }
+  .spark-dot.y { background: #fcd34d; }
+  .spark-dot.r { background: #fca5a5; }
+
+  /* ── LEYENDA ── */
+  .legend { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* ── EMPTY / LOADING STATE ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+  .empty-state h3 { color: var(--text); margin-bottom: 8px; font-size: 16px; }
+  .empty-state p { font-size: 12px; line-height: 1.7; }
+  .empty-state code { background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--accent); }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; padding: 18px; color: var(--text3); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px; background: var(--surface); }
+
+  /* ── scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+  /* ── MODAL INFO ── */
+  .info-btn { background: none; border: 1px solid var(--border2); color: var(--text3); width: 20px; height: 20px; border-radius: 50%; font-size: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font); transition: all .15s; flex-shrink: 0; }
+  .info-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--surface); border-radius: 14px; padding: 28px; max-width: 520px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); position: relative; max-height: 80vh; overflow-y: auto; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 28px; height: 28px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+  .modal-close:hover { background: var(--border); }
+  .modal-battle-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; color: #fff; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 18px; line-height: 1.3; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .modal-field { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .modal-field-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .modal-field-value { font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.4; }
+  .modal-field.full { grid-column: 1 / -1; }
+  .modal-tend { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .modal-tend.pos { background: var(--green-bg); color: var(--green); }
+  .modal-tend.neg { background: var(--red-bg); color: var(--red); }
+  .modal-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">📊</div>
+    <div class="header-divider"></div>
+    <div>
+      <h1>Dashboard REM 2026</h1>
+      <p id="header-sub">Innovasport Group · Resultados vs. AOP</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="load-status" class="status-pill status-wait">Cargando…</div>
+    <button class="file-btn" onclick="loadCSV()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Actualizar
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ERROR STATE -->
+  <div id="empty-state" class="empty-state" style="display:none">
+    <div class="icon">⚠️</div>
+    <h3 id="empty-title">No se pudo cargar el archivo</h3>
+    <p id="empty-msg">Asegúrate de que <code>resultados_REM_2026.csv</code> esté en la misma carpeta que este HTML en SharePoint.<br><br>
+    O carga el archivo manualmente si estás en local.</p>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="file-btn" onclick="loadCSV()" style="display:inline-flex">↺ Reintentar</button>
+      <label class="file-btn" for="csv-fallback" style="display:inline-flex">📂 Cargar manualmente</label>
+      <input type="file" id="csv-fallback" accept=".csv" style="display:none">
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div id="loading-state" class="empty-state">
+    <div style="font-size:36px;margin-bottom:12px">⏳</div>
+    <h3>Cargando datos…</h3>
+    <p style="color:var(--text2)">Leyendo <code>resultados_REM_2026.csv</code> desde SharePoint</p>
+  </div>
+
+  <!-- DASHBOARD (oculto hasta cargar CSV) -->
+  <div id="dashboard" style="display:none">
+
+    <!-- Controles -->
+    <div class="controls">
+      <span class="control-label">Mes:</span>
+      <div class="mes-btns" id="mes-btns"></div>
+      <div class="view-toggle">
+        <button class="toggle-btn active" id="btn-all" onclick="setView('all')">Todos los meses</button>
+        <button class="toggle-btn" id="btn-mes" onclick="setView('mes')">Mes seleccionado</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#16A34A"></div> ≥ 95% Cumple</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#D97706"></div> 80–94% En riesgo</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#DC2626"></div> &lt; 80% Por debajo</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#E1E4E8;border:1px solid #D0D5DC"></div> Sin dato</div>
+    </div>
+
+    <!-- Cards resumen por batalla -->
+    <div class="battles-grid" id="battles-grid"></div>
+
+    <!-- Detalle por batalla -->
+    <div id="battle-details"></div>
+
+  </div>
+</div>
+
+<div class="footer">Dashboard REM 2026 · Innovasport Group · Actualiza el CSV y recarga para refrescar datos</div>
+
+<script>
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const BATTLE_COLORS = {
+  '1. Cliente': '#0A2463',
+  '2. IS':      '#1B4F8A',
+  '3. IV':      '#5B21B6',
+  '4. EO':      '#065F46',
+  '5. Procesos':'#92400E',
+  '6. Equipo':  '#1E3A5F'
+};
+const BATTLE_DOTS = {
+  '1. Cliente': '#3B82F6',
+  '2. IS':      '#60A5FA',
+  '3. IV':      '#A78BFA',
+  '4. EO':      '#34D399',
+  '5. Procesos':'#D97706',
+  '6. Equipo':  '#64B5F6'
+};
+
+let DATA = [];
+let currentMes = 0; // índice 0-11
+let viewMode = 'all';
+
+// ── CSV PARSE ────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  const headers = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = splitCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+    return obj;
+  });
+}
+
+function splitCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQ = !inQ; }
+    else if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += line[i]; }
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseNum(v) {
+  if (!v || v === '' || v === 'NA' || v === 'TBD') return null;
+  const n = parseFloat(v.replace(/,/g,''));
+  return isNaN(n) ? null : n;
+}
+
+function getRow(row) {
+  const aop = MESES.map((_, i) => parseNum(row[`AOP_${MESES[i]}`]));
+  const real = MESES.map((_, i) => parseNum(row[`Real_${MESES[i]}`]));
+  const tend = row.Tendencia;
+  const covs = MESES.map((_, i) => {
+    const a = aop[i], r = real[i];
+    if (r === null || a === null || a === 0) return null;
+    return tend === 'Positiva' ? r / a : a / r;
+  });
+  // Acum
+  const realVals = real.filter(v => v !== null);
+  const aopVals  = MESES.map((_, i) => real[i] !== null ? aop[i] : null).filter(v => v !== null);
+  const sumReal = realVals.reduce((s,v) => s+v, 0);
+  const sumAop  = aopVals.reduce((s,v) => s+v, 0);
+  const covAcum = (sumAop > 0 && realVals.length > 0)
+    ? (tend === 'Positiva' ? sumReal/sumAop : sumAop/sumReal)
+    : null;
+  return { ...row, aop, real, covs, covAcum, tend };
+}
+
+function semColor(v) {
+  if (v === null) return 'empty';
+  if (v >= 0.95) return 'green';
+  if (v >= 0.80) return 'yellow';
+  return 'red';
+}
+
+function fmtCov(v, row) {
+  if (v === null) return `<span class="cov empty">—</span>`;
+  const cls = semColor(v);
+  return `<span class="cov ${cls}">${(v*100).toFixed(1)}%</span>`;
+}
+
+function fmtVal(v, row) {
+  if (v === null) return `<span style="color:var(--text2)">—</span>`;
+  const m = row.Metrica;
+  if (m === '%') return (v).toFixed(1) + '%';
+  if (m === 'MDP' || m === 'MDD' || m === 'Personas' || m === 'Visitas' || m === 'Núm') {
+    return v >= 1000 ? v.toLocaleString('es-MX',{maximumFractionDigits:0}) : v.toLocaleString('es-MX',{maximumFractionDigits:1});
+  }
+  return v.toFixed(1);
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  renderMesBtns();
+  renderBattleCards();
+  renderBattleDetails();
+}
+
+function renderMesBtns() {
+  const cont = document.getElementById('mes-btns');
+  cont.innerHTML = MESES.map((m, i) => {
+    const hasData = DATA.some(r => getRow(r).real[i] !== null);
+    const active = i === currentMes ? 'active' : '';
+    const hd = hasData ? 'has-data' : '';
+    return `<button class="mes-btn ${active} ${hd}" onclick="setMes(${i})">${m}</button>`;
+  }).join('');
+}
+
+function renderBattleCards() {
+  const battles = [...new Set(DATA.map(r => r.Batalla))];
+  const grid = document.getElementById('battles-grid');
+  grid.innerHTML = battles.map(bat => {
+    const rows = DATA.filter(r => r.Batalla === bat).map(getRow);
+    const color = BATTLE_COLORS[bat] || '#2c3e50';
+    const dot   = BATTLE_DOTS[bat]   || '#3498db';
+
+    // Coberturas para el mes activo o acumulado
+    const covs = rows.map(r => viewMode === 'mes' ? r.covs[currentMes] : r.covAcum);
+    const valid = covs.filter(v => v !== null);
+    const avgCov = valid.length ? valid.reduce((s,v)=>s+v,0)/valid.length : null;
+    const greens  = covs.filter(v => v !== null && v >= 0.95).length;
+    const yellows = covs.filter(v => v !== null && v >= 0.80 && v < 0.95).length;
+    const reds    = covs.filter(v => v !== null && v < 0.80).length;
+
+    const bigColor = avgCov === null ? 'var(--text2)' : avgCov >= 0.95 ? 'var(--green)' : avgCov >= 0.80 ? 'var(--yellow)' : 'var(--red)';
+    const bigVal   = avgCov !== null ? (avgCov*100).toFixed(1)+'%' : '—';
+
+    const semDots = rows.map((r,i) => {
+      const c = viewMode === 'mes' ? r.covs[currentMes] : r.covAcum;
+      const cls = semColor(c);
+      return `<div class="bc-semaforo" style="background:${cls==='green'?'var(--green)':cls==='yellow'?'var(--yellow)':cls==='red'?'var(--red)':'rgba(255,255,255,0.1)'}"></div>`;
+    }).join('');
+
+    const label = viewMode === 'mes' ? `Cob. ${MESES[currentMes]}` : 'Cob. acumulada';
+
+    return `
+      <div class="battle-card" onclick="toggleDetail('${bat.replace(/\./g,'').replace(/\s/g,'_')}')" style="border-top: 3px solid ${dot}">
+        <div class="bc-header">
+          <div class="bc-dot" style="background:${dot}"></div>
+          <div class="bc-title">${bat}</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <div class="bc-big" style="color:${bigColor}">${bigVal}</div>
+        </div>
+        <div class="bc-label">${label}</div>
+        <div class="bc-mini" style="margin-top:10px">${semDots}</div>
+        <div class="bc-stats">
+          <div class="bc-stat" style="color:var(--green)">✅ ${greens}</div>
+          <div class="bc-stat" style="color:var(--yellow)">⚠️ ${yellows}</div>
+          <div class="bc-stat" style="color:var(--red)">🔴 ${reds}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderBattleDetails() {
+  const battles = [...new Set(DATA.map(r => r.Batalla))];
+  const cont = document.getElementById('battle-details');
+  cont.innerHTML = battles.map(bat => {
+    const id = bat.replace(/\./g,'').replace(/\s/g,'_');
+    const color = BATTLE_COLORS[bat] || '#1a3a5c';
+    const dot   = BATTLE_DOTS[bat]   || '#3498db';
+    const rows  = DATA.filter(r => r.Batalla === bat).map(getRow);
+
+    // Pills del header
+    const covs = rows.map(r => viewMode === 'mes' ? r.covs[currentMes] : r.covAcum).filter(v=>v!==null);
+    const g = covs.filter(v=>v>=0.95).length;
+    const y = covs.filter(v=>v>=0.80&&v<0.95).length;
+    const r2= covs.filter(v=>v<0.80).length;
+
+    // Columnas: si vista "mes" mostramos solo ese mes; si "all" mostramos todos los que tienen AOP
+    const colsToShow = viewMode === 'mes'
+      ? [currentMes]
+      : MESES.map((_,i)=>i).filter(i => rows.some(r=>r.aop[i]!==null||r.real[i]!==null));
+
+    const thMeses = colsToShow.map(i => `<th>${MESES[i]}<br><span style="font-weight:400;color:rgba(255,255,255,0.3)">Obj / Real / Cob</span></th>`).join('');
+
+    const rowsHTML = rows.map((row, ri) => {
+      const tdMeses = colsToShow.map(i => {
+        const a = row.aop[i], r = row.real[i], c = row.covs[i];
+        const aStr = a !== null ? fmtVal(a, row) : '—';
+        const rStr = r !== null ? `<strong>${fmtVal(r, row)}</strong>` : '<span style="color:var(--text2)">—</span>';
+        return `<td class="ctr">
+          <div style="font-size:10px;color:var(--text2);margin-bottom:2px">${aStr}</div>
+          <div style="font-size:12px;margin-bottom:3px">${rStr}</div>
+          ${fmtCov(c, row)}
+        </td>`;
+      }).join('');
+
+      const acum = row.covAcum;
+      const spark = colsToShow.map(i => {
+        const c = row.covs[i];
+        const cls = c===null?'':c>=0.95?'g':c>=0.80?'y':'r';
+        return `<div class="spark-dot ${cls}"></div>`;
+      }).join('');
+      const bgStripe = ri%2===0 ? '' : 'background:#F8F9FA';
+
+      const batColor = BATTLE_COLORS[row.Batalla] || '#0A2463';
+      return `<tr style="${bgStripe}">
+        <td style="display:flex;align-items:center;gap:7px;min-width:200px">
+          <strong style="flex:1">${row.Indicador}</strong>
+          <button class="info-btn" title="Ver definición" onclick="openInfoModal('${row.Indicador.replace(/'/g,"\\'")}','${row.Batalla}','${batColor}')">ⓘ</button>
+        </td>
+        <td class="ctr"><span class="${row.tend==='Positiva'?'tend-up':'tend-dn'}">${row.tend==='Positiva'?'▲':'▼'}</span></td>
+        <td class="ctr">${row.Metrica}</td>
+        ${tdMeses}
+        <td class="ctr">${fmtCov(acum, row)}</td>
+        <td><div class="spark">${spark}</div></td>
+      </tr>`;
+    }).join('');
+
+    return `
+    <div class="detail-section" id="section_${id}">
+      <div class="detail-header" style="background:${color}" onclick="toggleDetail('${id}')">
+        <div class="dh-arrow" id="arrow_${id}">▶</div>
+        <div class="dh-title">${bat}</div>
+        <div class="dh-pills">
+          ${g>0?`<span class="dh-pill" style="background:var(--green-bg);color:var(--green)">✅ ${g}</span>`:''}
+          ${y>0?`<span class="dh-pill" style="background:var(--yellow-bg);color:var(--yellow)">⚠️ ${y}</span>`:''}
+          ${r2>0?`<span class="dh-pill" style="background:var(--red-bg);color:var(--red)">🔴 ${r2}</span>`:''}
+        </div>
+      </div>
+      <div class="detail-body" id="body_${id}" style="overflow-x:auto">
+        <table class="kpi-table">
+          <thead><tr>
+            <th style="min-width:200px">Indicador</th>
+            <th>Tend.</th>
+            <th>Métrica</th>
+            ${thMeses}
+            <th>Acum.</th>
+            <th style="min-width:100px">Tendencia</th>
+          </tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── INTERACTIONS ─────────────────────────────────────────────────────────────
+function toggleDetail(id) {
+  const body  = document.getElementById('body_'+id);
+  const arrow = document.getElementById('arrow_'+id);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function setMes(i) {
+  currentMes = i;
+  render();
+}
+
+function setView(v) {
+  viewMode = v;
+  document.getElementById('btn-all').classList.toggle('active', v==='all');
+  document.getElementById('btn-mes').classList.toggle('active', v==='mes');
+  render();
+}
+
+// ── AUTO-LOAD desde ruta relativa (SharePoint mismo folder) ──────────────────
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQShpCnOnCy88CDW50QKc6gKF0frXrwXn5paWJcyURhi9hucLI0NxP9XKnWA7j8SGa3UQh-EJch_YwF/pub?output=csv';
+
+function loadCSV() {
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('empty-state').style.display   = 'none';
+  document.getElementById('dashboard').style.display     = 'none';
+  document.getElementById('load-status').textContent     = 'Cargando…';
+  document.getElementById('load-status').className       = 'status-pill status-wait';
+
+  fetch(CSV_URL)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    })
+    .then(text => onDataLoaded(text, 'Google Sheets'))
+    .catch(err => {
+      console.warn('fetch falló:', err);
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('empty-state').style.display   = 'block';
+      document.getElementById('empty-title').textContent = 'No se pudieron cargar los datos';
+      document.getElementById('empty-msg').innerHTML =
+        `Verifica tu conexión a internet e intenta de nuevo.<br><br>
+        O carga el archivo manualmente con el botón de abajo.`;
+    });
+}
+
+function onDataLoaded(text, filename) {
+  DATA = parseCSV(text);
+  let lastMes = 0;
+  MESES.forEach((m,i) => {
+    if (DATA.some(r => parseNum(r[`Real_${m}`]) !== null)) lastMes = i;
+  });
+  currentMes = lastMes;
+
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('empty-state').style.display   = 'none';
+  document.getElementById('dashboard').style.display     = 'block';
+  document.getElementById('load-status').textContent     = `${DATA.length} indicadores · ${MESES[lastMes]} más reciente`;
+  document.getElementById('load-status').className       = 'status-pill status-ok';
+  document.getElementById('header-sub').textContent      = `${DATA.length} indicadores · Actualizado: ${new Date().toLocaleDateString('es-MX')}`;
+  render();
+}
+
+// Carga manual (fallback)
+document.getElementById('csv-fallback').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => onDataLoaded(ev.target.result, file.name);
+  reader.readAsText(file, 'UTF-8');
+});
+
+// Botón "Actualizar datos" en el header
+function refreshData() { loadCSV(); }
+
+// ── ARRANQUE ─────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', loadCSV);
+</script>
+
+<!-- ── MODAL INFO ── -->
+<div class="modal-overlay" id="info-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeInfoModal()">✕</button>
+    <div id="modal-battle-tag" class="modal-battle-tag"></div>
+    <div id="modal-title" class="modal-title"></div>
+    <div class="modal-grid" id="modal-grid"></div>
+  </div>
+</div>
+
+<script>
+// ── DICCIONARIO DE INDICADORES ────────────────────────────────────────────────
+const INFO = {
+  "Tráfico físico": {
+    descripcion: "Personas visitando tiendas físicas",
+    formula: "Número de personas que visitan la tienda",
+    fuente: "4DW_AM_TRAFICO",
+    metrica: "Número de personas",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Tráfico digital": {
+    descripcion: "Consultas a los sitios digitales",
+    formula: "Número de visitas al sitio",
+    fuente: "4DW_AM_TRAFICO",
+    metrica: "Número de visitas",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS Ecomm IS": {
+    descripcion: "Porcentaje de calificación por cliente en Ecommerce IS",
+    formula: "Promotores - Detractores / Total encuestados",
+    fuente: "Comité NPS / Medallia",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS Ecomm IV": {
+    descripcion: "Porcentaje de calificación por cliente en Ecommerce IV",
+    formula: "Promotores - Detractores / Total encuestados",
+    fuente: "Comité NPS / Medallia",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS Tienda IS": {
+    descripcion: "Porcentaje de calificación por cliente en Tienda Física IS",
+    formula: "Promotores - Detractores / Total encuestados",
+    fuente: "Comité NPS / Medallia",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS Tienda IV": {
+    descripcion: "Porcentaje de calificación por cliente en Tienda Física IV",
+    formula: "Promotores - Detractores / Total encuestados",
+    fuente: "Comité NPS / Medallia",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS Total": {
+    descripcion: "NPS consolidado de todos los banners y canales",
+    formula: "Promotores - Detractores / Total encuestados (banners y canales)",
+    fuente: "Comité NPS / Medallia",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Retención Legends": {
+    descripcion: "Clientes con más de 1 venta en los últimos 12 meses",
+    formula: "Clientes recurrentes (12 meses) / Total clientes activos",
+    fuente: "CRM / Loyalty",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Venta IS": {
+    descripcion: "Venta Neta Mensual Banner Innovasport",
+    formula: "Suma de ventas netas del periodo del banner IS",
+    fuente: "Planeación Financiera",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Venta Mundial": {
+    descripcion: "Venta neta de productos del mundial de catálogo oficial",
+    formula: "Suma de ventas netas de artículos de colección oficial FIFA",
+    fuente: "Planeación Financiera",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Sell Out Innergy IS": {
+    descripcion: "Venta de productos de marcas Innergy en IS",
+    formula: "4DW_AM_VNTS_S4 venta neta con filtro proveedor Innergy",
+    fuente: "Merchandising / SAC",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Running IS": {
+    descripcion: "Cumplimiento del AOP de venta IS en la categoría Running",
+    formula: "Venta neta categoría Running IS / AOP Running IS",
+    fuente: "SO Tracker / Metrics (Duarte)",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Futbol Calzado IS": {
+    descripcion: "Cumplimiento del AOP de venta IS en Futbol Calzado (incluye JSYS)",
+    formula: "Venta neta categoría Futbol Calzado IS / AOP Futbol IS",
+    fuente: "SO Tracker / Metrics (Duarte)",
+    metrica: "Pesos",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Training IS": {
+    descripcion: "Cumplimiento del AOP de venta IS en la categoría Training",
+    formula: "Venta neta categoría Training IS / AOP Training IS",
+    fuente: "SO Tracker / Metrics (Duarte)",
+    metrica: "Pesos",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "EBITDA IS": {
+    descripcion: "Ingresos Operativos con Depreciaciones y Amortizaciones Banner IS",
+    formula: "UAFIDA = Utilidad Operativa + D&A (Tienda Física + Ecommerce)",
+    fuente: "Estado de Resultados",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Venta IV": {
+    descripcion: "Venta Neta Mensual Banner Invictus",
+    formula: "Suma de ventas netas del periodo del banner IV",
+    fuente: "Planeación Financiera",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Sell Out Innergy IV": {
+    descripcion: "Venta de productos de marcas Innergy en IV",
+    formula: "4DW_AM_VNTS_S4 venta neta con filtro proveedor Innergy",
+    fuente: "Merchandising / SAC",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Basket IV vs AA": {
+    descripcion: "Crecimiento de venta de la categoría Basket IV vs. Año Anterior",
+    formula: "Venta Basket IV periodo actual / Venta Basket IV mismo periodo AA",
+    fuente: "Planeación Financiera",
+    metrica: "% Crecimiento vs AA",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "EBITDA IV": {
+    descripcion: "Ingresos Operativos con D&A Banner Invictus",
+    formula: "UAFIDA = Utilidad Operativa + D&A (Tienda Física + Ecommerce)",
+    fuente: "Estado de Resultados",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Venta US": {
+    descripcion: "Venta neta general de operaciones en USA",
+    formula: "Suma de ventas netas del periodo en dólares USA",
+    fuente: "Planeación Financiera",
+    metrica: "MDD",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Conversión físico": {
+    descripcion: "Relación entre tickets generados y tráfico en tienda física",
+    formula: "Tickets tienda física / Tráfico físico",
+    fuente: "Planeación Financiera",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Conversión digital": {
+    descripcion: "Relación entre tickets digitales y tráfico digital",
+    formula: "Tickets Digital / Tráfico Digital",
+    fuente: "Planeación Financiera",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Días de envío": {
+    descripcion: "Tiempo que tarda el pedido desde que se realiza hasta que lo recibe el cliente",
+    formula: "Fecha recepción cliente − Fecha creación pedido (promedio)",
+    fuente: "Logística / Alejandro Guerra",
+    metrica: "Días",
+    responsable: "Alejandro Guerra",
+    tendencia: "Negativa"
+  },
+  "Cobertura de vacantes": {
+    descripcion: "Porcentaje de vacantes cubiertas respecto al total autorizado",
+    formula: "Vacantes cubiertas / Vacantes totales autorizadas",
+    fuente: "RRHH",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Margen % Total": {
+    descripcion: "Margen bruto como porcentaje de la venta neta total del grupo",
+    formula: "(Venta Neta − Costo de Ventas) / Venta Neta",
+    fuente: "Estado de Resultados",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "WOS": {
+    descripcion: "Semanas de inventario disponibles respecto a la venta semanal",
+    formula: "Inventario disponible (unidades) / Venta semanal promedio",
+    fuente: "Supply Chain / Inventarios",
+    metrica: "Semanas",
+    responsable: "",
+    tendencia: "Negativa"
+  },
+  "WOH": {
+    descripcion: "Semanas de inventario en tránsito u órdenes abiertas",
+    formula: "Inventario en tránsito / Venta semanal promedio",
+    fuente: "Supply Chain / Inventarios",
+    metrica: "Semanas",
+    responsable: "",
+    tendencia: "Negativa"
+  },
+  "Sellthrough Mes": {
+    descripcion: "Porcentaje de inventario vendido en el periodo respecto al recibo total",
+    formula: "Venta neta del recibo (pesos) / Costo total del recibo ingresado",
+    fuente: "Planeación Financiera",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "AOP Venta Terceros": {
+    descripcion: "Venta neta generada por marcas y productos de terceros",
+    formula: "Suma de ventas netas de productos de terceros en el periodo",
+    fuente: "Estado de Resultados",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Venta General": {
+    descripcion: "Venta neta consolidada de todo el grupo (IS + IV + US + Terceros)",
+    formula: "Suma de ventas netas de todos los banners y canales",
+    fuente: "Planeación Financiera",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "EBITDA General": {
+    descripcion: "Resultado operativo consolidado del grupo antes de impuestos, depreciación y amortización",
+    formula: "UAFIDA consolidada = Utilidad Operativa + D&A (todos los banners)",
+    fuente: "Estado de Resultados",
+    metrica: "MDP",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Rotación Voluntaria": {
+    descripcion: "Porcentaje de colaboradores que renuncian voluntariamente en el periodo",
+    formula: "Bajas voluntarias / Headcount promedio del periodo",
+    fuente: "RRHH",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Negativa"
+  },
+  "Clima encuesta pulso": {
+    descripcion: "Resultado de la encuesta de clima organizacional (pulso)",
+    formula: "Índice de satisfacción de colaboradores en la encuesta pulso",
+    fuente: "RRHH / Clima",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "NPS interno": {
+    descripcion: "Net Promoter Score interno de colaboradores",
+    formula: "% Promotores − % Detractores internos",
+    fuente: "RRHH",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "Movilidad interna": {
+    descripcion: "Porcentaje de vacantes cubiertas con talento interno",
+    formula: "Movimientos internos / Total vacantes cubiertas en el periodo",
+    fuente: "RRHH",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Positiva"
+  },
+  "People Cost AOP": {
+    descripcion: "Cumplimiento del presupuesto de costo de personas vs AOP",
+    formula: "Costo real de personas / Costo AOP de personas",
+    fuente: "RRHH / Finanzas",
+    metrica: "Porcentaje",
+    responsable: "",
+    tendencia: "Negativa"
+  },
+  "Sucursales reciclan": {
+    descripcion: "Número de sucursales activas en programa de reciclaje de cartón",
+    formula: "Conteo de tiendas participantes en el programa de reciclaje",
+    fuente: "Sostenibilidad / ESG",
+    metrica: "Número de sucursales",
+    responsable: "",
+    tendencia: "Positiva"
+  }
+};
+
+function openInfoModal(indicador, batalla, batColor) {
+  const info = INFO[indicador] || {};
+  document.getElementById('modal-battle-tag').textContent = batalla;
+  document.getElementById('modal-battle-tag').style.background = batColor;
+  document.getElementById('modal-title').textContent = indicador;
+
+  const tend = info.tendencia || '';
+  const tendHTML = tend
+    ? `<span class="modal-tend ${tend === 'Positiva' ? 'pos' : 'neg'}">${tend === 'Positiva' ? '▲' : '▼'} ${tend}</span>`
+    : '—';
+
+  const fields = [
+    { label: 'Descripción', value: info.descripcion || '—', full: true },
+    { label: 'Fórmula / Definición', value: info.formula || '—', full: true },
+    { label: 'Fuente de datos', value: info.fuente || '—' },
+    { label: 'Métrica', value: info.metrica || '—' },
+    { label: 'Tendencia esperada', value: tendHTML, isHTML: true },
+    { label: 'Responsable', value: info.responsable || 'Por definir' },
+  ];
+
+  document.getElementById('modal-grid').innerHTML = fields.map(f => `
+    <div class="modal-field ${f.full ? 'full' : ''}">
+      <div class="modal-field-label">${f.label}</div>
+      <div class="modal-field-value">${f.isHTML ? f.value : escapeHTML(f.value)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('info-modal').classList.add('open');
+}
+
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function closeInfoModal() {
+  document.getElementById('info-modal').classList.remove('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('info-modal')) closeInfoModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeInfoModal(); });
+</script>
+</body>
+</html>
