@@ -492,7 +492,8 @@ function setView(v) {
 }
 
 // ── AUTO-LOAD desde ruta relativa (SharePoint mismo folder) ──────────────────
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQShpCnOnCy88CDW50QKc6gKF0frXrwXn5paWJcyURhi9hucLI0NxP9XKnWA7j8SGa3UQh-EJch_YwF/pub?output=csv';
+const SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQShpCnOnCy88CDW50QKc6gKF0frXrwXn5paWJcyURhi9hucLI0NxP9XKnWA7j8SGa3UQh-EJch_YwF/pub?output=csv';
+const CSV_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEETS_URL);
 
 function loadCSV() {
   document.getElementById('loading-state').style.display = 'block';
